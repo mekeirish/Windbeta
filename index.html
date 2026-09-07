@@ -3,14 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Boussole Vent & Nuages en Temps Réel</title>
+    <title>Boussole Vent & Nuages</title>
     <style>
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
-
+        * { box-sizing: border-box; margin: 0; padding: 0; }
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
@@ -22,7 +17,6 @@
             flex-direction: column;
             padding: 20px;
         }
-
         .card {
             background: rgba(255, 255, 255, 0.08);
             backdrop-filter: blur(12px);
@@ -34,14 +28,7 @@
             max-width: 390px;
             width: 100%;
         }
-
-        h1 {
-            font-size: 1.3rem;
-            margin-bottom: 15px;
-            font-weight: 600;
-        }
-
-        /* Boussole Cadran */
+        h1 { font-size: 1.3rem; margin-bottom: 15px; font-weight: 600; }
         .compass-outer {
             position: relative;
             width: 250px;
@@ -51,144 +38,97 @@
             margin: 15px auto;
             background: rgba(0, 0, 0, 0.3);
             overflow: hidden;
+            box-shadow: inset 0 0 15px rgba(0,0,0,0.5);
         }
-
-        /* La Rose des vents (pivote avec l'orientation du téléphone) */
         .compass-dial {
             position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            transition: transform 0.1s ease-out;
+            top: 0; left: 0; width: 100%; height: 100%;
+            transition: transform 0.15s ease-out;
         }
-
-        .cardinal {
-            position: absolute;
-            font-weight: bold;
-            font-size: 1.1rem;
-            color: #fff;
-        }
-
+        .cardinal { position: absolute; font-weight: bold; font-size: 1.1rem; color: #fff; }
         .cardinal.n { top: 10px; left: 50%; transform: translateX(-50%); color: #ff4757; }
         .cardinal.e { right: 12px; top: 50%; transform: translateY(-50%); }
         .cardinal.s { bottom: 10px; left: 50%; transform: translateX(-50%); }
         .cardinal.w { left: 12px; top: 50%; transform: translateY(-50%); }
 
-        /* Conteneurs pour l'orientation des flèches */
         .arrow-container {
             position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            transition: transform 0.5s ease-in-out;
+            top: 0; left: 0; width: 100%; height: 100%;
+            transition: transform 0.8s cubic-bezier(0.4, 0, 0.2, 1);
         }
-
-        /* Flèche 1 : Vent au sol (Bleue - fine et longue) */
+        
+        /* Flèche bleue - Vent au sol (10m) */
         .arrow-ground {
             position: absolute;
-            top: 25px;
-            left: calc(50% - 7px);
-            width: 0;
-            height: 0;
+            top: 25px; left: calc(50% - 7px);
+            width: 0; height: 0;
             border-left: 7px solid transparent;
             border-right: 7px solid transparent;
             border-bottom: 85px solid #00d2d3;
             filter: drop-shadow(0px 0px 6px rgba(0, 210, 211, 0.8));
+            z-index: 2;
         }
-
-        /* Flèche 2 : Vent en altitude / Nuages (Jaune - plus large et trapu) */
+        
+        /* Flèche jaune - Nuages/Altitude (180m) */
         .arrow-cloud {
             position: absolute;
-            top: 45px;
-            left: calc(50% - 10px);
-            width: 0;
-            height: 0;
+            top: 45px; left: calc(50% - 10px);
+            width: 0; height: 0;
             border-left: 10px solid transparent;
             border-right: 10px solid transparent;
             border-bottom: 65px solid #f1c40f;
             filter: drop-shadow(0px 0px 6px rgba(241, 196, 15, 0.8));
             opacity: 0.85;
+            z-index: 1;
         }
 
-        /* Indicateur du cap de l'appareil (fixe en haut) */
+        /* Indicateur fixe du cap du téléphone (en haut) */
         .heading-marker {
             position: absolute;
-            top: 4px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 0;
-            height: 0;
+            top: 4px; left: 50%; transform: translateX(-50%);
+            width: 0; height: 0;
             border-left: 6px solid transparent;
             border-right: 6px solid transparent;
             border-top: 10px solid #ffffff;
             z-index: 10;
         }
 
-        /* Légende & Informations */
         .legend {
             display: flex;
             justify-content: space-around;
-            margin-top: 15px;
+            margin-top: 20px;
             background: rgba(0, 0, 0, 0.2);
-            padding: 10px;
+            padding: 12px;
             border-radius: 12px;
         }
-
-        .legend-item {
-            text-align: center;
-        }
-
-        .legend-title {
-            font-size: 0.8rem;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            margin-bottom: 4px;
-            font-weight: 600;
-        }
-
+        .legend-item { width: 50%; }
+        .legend-title { font-size: 0.75rem; text-transform: uppercase; margin-bottom: 4px; font-weight: 700; letter-spacing: 0.5px; }
         .legend-title.ground { color: #00d2d3; }
         .legend-title.cloud { color: #f1c40f; }
-
-        .val-speed {
-            font-size: 1.2rem;
-            font-weight: bold;
-        }
-
-        .val-deg {
-            font-size: 0.8rem;
-            opacity: 0.8;
-        }
-
-        #status {
-            font-size: 0.85rem;
-            margin-top: 15px;
-            opacity: 0.7;
-            font-style: italic;
-        }
-
+        .val-speed { font-size: 1.3rem; font-weight: bold; }
+        .val-deg { font-size: 0.8rem; opacity: 0.8; margin-top: 2px; }
+        
+        #status { font-size: 0.85rem; margin-top: 15px; color: #ffffff; font-style: italic; word-break: break-word; min-height: 20px; }
         .btn {
             margin-top: 15px;
             background: #00d2d3;
             border: none;
             color: #1e272e;
-            padding: 12px 24px;
-            border-radius: 20px;
+            padding: 14px 24px;
+            border-radius: 25px;
             font-weight: bold;
             cursor: pointer;
-            font-size: 0.95rem;
+            font-size: 1rem;
             width: 100%;
+            transition: background 0.3s, transform 0.1s;
         }
+        .btn:active { transform: scale(0.98); }
     </style>
-
-<link rel="manifest" href="manifest.json">
-<meta name="theme-color" content="#4b6cb7">
-<link rel="apple-touch-icon" href="icon.png"></head>
+</head>
 <body>
 
     <div class="card">
-        <h1>Boussole Vent & Nuages</h1>
+        <h1>Analyseur de Vent</h1>
         
         <div class="compass-outer">
             <div class="heading-marker"></div>
@@ -198,12 +138,9 @@
                 <span class="cardinal s">S</span>
                 <span class="cardinal w">O</span>
                 
-                <!-- Flèche Vent en Altitude (Nuages) -->
                 <div class="arrow-container" id="cloudArrowContainer">
                     <div class="arrow-cloud"></div>
                 </div>
-
-                <!-- Flèche Vent au Sol -->
                 <div class="arrow-container" id="groundArrowContainer">
                     <div class="arrow-ground"></div>
                 </div>
@@ -212,59 +149,82 @@
 
         <div class="legend">
             <div class="legend-item">
-                <div class="legend-title ground">Vent Sol (10m)</div>
+                <div class="legend-title ground">Sol (10m)</div>
                 <div class="val-speed" id="groundSpeed">-- km/h</div>
                 <div class="val-deg" id="groundDeg">--°</div>
             </div>
             <div class="legend-item">
-                <div class="legend-title cloud">Nuages (~1500m)</div>
+                <div class="legend-title cloud">Nuages (180m)</div>
                 <div class="val-speed" id="cloudSpeed">-- km/h</div>
                 <div class="val-deg" id="cloudDeg">--°</div>
             </div>
         </div>
 
-        <p id="status">Clique sur le bouton pour démarrer.</p>
-        <button class="btn" id="permissionBtn" onclick="initSensors()">Activer Capteurs & GPS</button>
+        <p id="status">En attente d'activation...</p>
+        <button class="btn" id="permissionBtn" onclick="initSensors()">Démarrer la boussole</button>
     </div>
 
     <script>
         let compassHeading = 0;
 
+        function updateStatus(msg, isError = false) {
+            const statusEl = document.getElementById('status');
+            statusEl.textContent = msg;
+            statusEl.style.color = isError ? "#ff6b6b" : "#00d2d3";
+        }
+
         function initSensors() {
-            document.getElementById('status').textContent = "Demande d'accès aux capteurs...";
-            
-            // 1. Géolocalisation
-            if (navigator.geolocation) {
-                navigator.geolocation.getCurrentPosition(fetchWeatherData, handleGeoError);
-            } else {
-                document.getElementById('status').textContent = "Géolocalisation non supportée.";
+            if (!window.isSecureContext && location.protocol !== 'file:') {
+                updateStatus("Le protocole HTTPS est requis pour les capteurs.", true);
+                return;
             }
 
-            // 2. Gyroscope / Boussole
+            updateStatus("Demande d'accès aux capteurs...");
+
+            // 1. Initialisation de la boussole
+            setupOrientation();
+            
+            // 2. Initialisation du GPS
+            setupLocation();
+        }
+
+        function setupOrientation() {
             if (typeof DeviceOrientationEvent !== 'undefined' && typeof DeviceOrientationEvent.requestPermission === 'function') {
                 DeviceOrientationEvent.requestPermission()
                     .then(permissionState => {
                         if (permissionState === 'granted') {
                             window.addEventListener('deviceorientation', handleOrientation, true);
                         } else {
-                            document.getElementById('status').textContent = "Accès au gyroscope refusé.";
+                            updateStatus("Accès boussole refusé.", true);
                         }
                     })
-                    .catch(console.error);
+                    .catch(err => updateStatus("Erreur boussole : " + err.message, true));
             } else if ('ondeviceorientationabsolute' in window) {
                 window.addEventListener('deviceorientationabsolute', handleOrientation, true);
-            } else {
+            } else if ('ondeviceorientation' in window) {
                 window.addEventListener('deviceorientation', handleOrientation, true);
             }
         }
 
+        function setupLocation() {
+            if (!navigator.geolocation) {
+                updateStatus("Le GPS n'est pas supporté.", true);
+                return;
+            }
+
+            navigator.geolocation.getCurrentPosition(
+                fetchWeatherData, 
+                handleGeoError, 
+                { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+            );
+        }
+
         function handleOrientation(event) {
             let heading = null;
-
             if (event.webkitCompassHeading) {
-                heading = event.webkitCompassHeading; // iOS Safari
+                heading = event.webkitCompassHeading;
             } else if (event.alpha !== null) {
-                heading = 360 - event.alpha; // Android / Standard
+                heading = 360 - event.alpha;
             }
 
             if (heading !== null) {
@@ -277,62 +237,90 @@
             const lat = position.coords.latitude;
             const lon = position.coords.longitude;
 
-            // Requête météo : vent au sol + vent à 850 hPa (~1 500m d'altitude)
-            const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current_weather=true&hourly=windspeed_850hpa,winddirection_850hpa`;
+            updateStatus("Analyse météorologique en cours...");
+
+            // Utilisation des données à 10m (sol) et 180m (nuages) avec auto-timezone
+            const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=wind_speed_10m,wind_direction_10m&hourly=wind_speed_180m,wind_direction_180m&timezone=auto`;
 
             fetch(url)
                 .then(res => res.json())
                 .then(data => {
-                    if (data.current_weather && data.hourly) {
-                        // Données au sol
-                        const groundDir = data.current_weather.winddirection;
-                        const groundSpd = data.current_weather.windspeed;
+                    if (data.error) {
+                        updateStatus("Erreur API : " + (data.reason || "Rejet de la requête"), true);
+                        return;
+                    }
 
-                        // Données en altitude (nuages) correspondant à l'heure actuelle
-                        const currentHour = new Date().getHours();
-                        const cloudDir = data.hourly.winddirection_850hpa[currentHour];
-                        const cloudSpd = data.hourly.windspeed_850hpa[currentHour];
+                    if (data.current && data.hourly) {
+                        // Variables du vent au sol
+                        const groundSpd = Math.round(data.current.wind_speed_10m);
+                        const groundDir = Math.round(data.current.wind_direction_10m);
 
-                        // Mise à jour de l'affichage textuel
+                        // Détermination de la bonne heure locale dans le tableau hourly
+                        const now = new Date();
+                        const year = now.getFullYear();
+                        const month = String(now.getMonth() + 1).padStart(2, '0');
+                        const day = String(now.getDate()).padStart(2, '0');
+                        const hours = String(now.getHours()).padStart(2, '0');
+                        
+                        // Création du format Open-Meteo : "YYYY-MM-DDTHH:00"
+                        const currentHourStr = `${year}-${month}-${day}T${hours}:00`;
+                        
+                        let hourIndex = data.hourly.time.indexOf(currentHourStr);
+                        if (hourIndex === -1) hourIndex = 0; // Sécurité si introuvable
+
+                        // Variables du vent en altitude
+                        const cloudSpd = Math.round(data.hourly.wind_speed_180m[hourIndex] || 0);
+                        const cloudDir = Math.round(data.hourly.wind_direction_180m[hourIndex] || 0);
+
+                        // Injection des valeurs dans le DOM
                         document.getElementById('groundSpeed').textContent = `${groundSpd} km/h`;
                         document.getElementById('groundDeg').textContent = `${groundDir}° (${getCardinal(groundDir)})`;
                         
                         document.getElementById('cloudSpeed').textContent = `${cloudSpd} km/h`;
                         document.getElementById('cloudDeg').textContent = `${cloudDir}° (${getCardinal(cloudDir)})`;
 
-                        // Orienter la flèche du vent au sol
+                        // Animation des flèches directionnelles
                         document.getElementById('groundArrowContainer').style.transform = `rotate(${groundDir}deg)`;
-
-                        // Orienter la flèche du vent en altitude (nuages)
                         document.getElementById('cloudArrowContainer').style.transform = `rotate(${cloudDir}deg)`;
 
-                        document.getElementById('status').textContent = "Boussole active en temps réel.";
+                        updateStatus("Boussole synchronisée.");
                         document.getElementById('permissionBtn').style.display = 'none';
                         updateCompassUI();
+                    } else {
+                        updateStatus("Données de vent introuvables.", true);
                     }
                 })
                 .catch(err => {
-                    console.error(err);
-                    document.getElementById('status').textContent = "Erreur de récupération des données météo.";
+                    updateStatus("Connexion météo échouée : " + err.message, true);
                 });
         }
 
         function updateCompassUI() {
-            // Pivote la rose des vents selon l'orientation physique de l'appareil
             const dial = document.getElementById('compassDial');
             dial.style.transform = `rotate(${-compassHeading}deg)`;
         }
 
-        function handleGeoError() {
-            document.getElementById('status').textContent = "Erreur de géolocalisation. Active ton GPS.";
+        function handleGeoError(err) {
+            switch(err.code) {
+                case err.PERMISSION_DENIED:
+                    updateStatus("GPS refusé par l'utilisateur.", true);
+                    break;
+                case err.POSITION_UNAVAILABLE:
+                    updateStatus("Signal GPS introuvable.", true);
+                    break;
+                case err.TIMEOUT:
+                    updateStatus("Délai de connexion GPS dépassé.", true);
+                    break;
+                default:
+                    updateStatus("Erreur GPS inattendue.", true);
+            }
         }
 
+        // Convertit les degrés en points cardinaux
         function getCardinal(angle) {
             const dirs = ['N', 'N-E', 'E', 'S-E', 'S', 'S-O', 'O', 'N-O'];
             return dirs[Math.round(angle / 45) % 8];
         }
     </script>
-
-<script>if('serviceWorker' in navigator){window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js'));}</script>
 </body>
 </html>
